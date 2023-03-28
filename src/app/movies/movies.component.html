@@ -1,0 +1,53 @@
+<div class="search">
+    <input type="text" id="search-box" (keyup)="onSearch()" [(ngModel)]="searchTerm" placeholder="Search movies">
+</div>
+<div class="cards-container">
+    <ng-container *ngIf="loading">
+        <div class="message">Loading movies...</div>
+    </ng-container>
+    <ng-container *ngIf="error">
+        <div class="message">An error occurred while fetching movies. <button (click)="onRefresh()">Refresh</button>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !error && movies.length > 0">
+        <div class="cards">
+            <div class="card" *ngFor="let movie of movies" (click)="showModal(movieModal, movie, $event)">
+                <div class="avatar" *ngIf="movie">
+                    <img [src]="'https://ui-avatars.com/api/?name=' + movie.title" alt="{{ movie.title }} avatar">
+                </div>
+                <div class="info">
+                    <div class="title">{{ movie.title }}</div>
+                    <div class="description">{{ movie.description | slice:0:100 }}</div>
+                    <div class="genres">{{ movie.genres }}</div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
+
+<div class="pagination" *ngIf="!loading && !error && movies.length > 0">
+    <button class="pagination-item" (click)="goToPage(1)">First</button>
+    <button class="pagination-item" (click)="prevPage()" [disabled]="currentPage === 1">Prev</button>
+    <ng-container *ngFor="let page of visiblePages">
+        <button class="pagination-item" (click)="goToPage(page)" [class.active]="page === currentPage">{{
+            page
+            }}</button>
+    </ng-container>
+    <button class="pagination-item" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+    <button class="pagination-item" (click)="goToPage(totalPages)">Last</button>
+</div>
+
+<!-- Modal -->
+
+<ng-template #movieModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title">{{ movie.title }}</h4>
+        <button type="button" class="close" aria-label="Close"  (click)="modalClose()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <p class="description">{{ movie.description }}</p>
+        <p *ngIf="movie?.genres"><strong>Genres:</strong> {{ movie.genres }}</p>
+    </div>
+</ng-template>
